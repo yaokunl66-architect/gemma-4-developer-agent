@@ -1,0 +1,9 @@
+temperature: 1.0
+top_p: 0.95
+# 8192, not 16384: vLLM reserves max_output_tokens out of the 32768 context, so
+# 16384 capped the prompt at 16384 tokens and 3/12 v1 eval tasks died with
+# ContextWindowExceededError (no patch). 4096 thinking + one tool call fits in 8192.
+max_output_tokens: 8192
+thinking_config:
+  thinking_budget: 4096
+  include_thoughts: true

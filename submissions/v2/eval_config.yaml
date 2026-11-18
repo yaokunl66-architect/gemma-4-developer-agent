@@ -1,0 +1,9 @@
+# Per-task budgets. Whole run (~120 tasks + setup + vLLM start) must finish in 12 h.
+# v1 eval on 4xL4 (12 tasks, 30 calls / 7 min): mean 279 s/task incl. setup and
+# verification -> 9.4 h projected. Half the tasks ended on the call cap, so give a
+# few more calls; projected ~10 h.
+evaluation:
+  timeout_seconds: 180
+  max_tool_calls: 34
+  max_time_minutes: 7.5
+  max_turns: 70
