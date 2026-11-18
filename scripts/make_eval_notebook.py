@@ -76,6 +76,12 @@ SUBMISSION_FILES = {json.dumps(files, indent=1, ensure_ascii=False)}
 import glob, importlib, logging, os, shutil, subprocess, sys, time, json
 from pathlib import Path
 
+print('python', sys.version)
+assert sys.version_info[:2] == (3, 12), (
+    f'Python {sys.version_info[0]}.{sys.version_info[1]}: the wheelhouse is cp312 only. '
+    'Use a copy of the official Getting Started notebook (Copy & Edit keeps its Python 3.12 environment), '
+    'then File -> Import Notebook this file into it.')
+
 for k, v in {
     'TRANSFORMERS_NO_TF': '1', 'TRANSFORMERS_NO_FLAX': '1', 'TRANSFORMERS_OFFLINE': '1',
     'VLLM_NO_USAGE_STATS': '1', 'VLLM_WORKER_MULTIPROC_METHOD': 'spawn',
