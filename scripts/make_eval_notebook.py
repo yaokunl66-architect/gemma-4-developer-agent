@@ -97,8 +97,11 @@ def configure_logging():
 configure_logging()
 
 WHEELHOUSE_DIR = Path('/kaggle/input/datasets/metric/gemma-4-developer-agent-wheelhouse')
-if not WHEELHOUSE_DIR.exists():  # older mount layout
-    WHEELHOUSE_DIR = Path('/kaggle/input/gemma-4-developer-agent-wheelhouse')
+if not any(WHEELHOUSE_DIR.glob('swegemma-*.whl')):  # mount layout differs: locate it
+    hits = sorted({w.parent for w in Path('/kaggle/input').rglob('swegemma-*.whl')})
+    assert hits, 'Wheelhouse dataset not attached (no swegemma-*.whl under /kaggle/input)'
+    WHEELHOUSE_DIR = hits[0]
+print('WHEELHOUSE_DIR', WHEELHOUSE_DIR)
 for pat in ('/usr/local/lib/python*/dist-packages/*cutlass*.pth', '/usr/local/lib/python*/site-packages/*cutlass*.pth'):
     for pth in glob.glob(pat):
         try: os.unlink(pth)
@@ -121,8 +124,11 @@ print('python', sys.version)
 from swegemma.models import load_tasks
 
 DATA_DIR = Path('/kaggle/input/competitions/gemma-4-developer-agent')
-if not DATA_DIR.exists():
-    DATA_DIR = Path('/kaggle/input/gemma-4-developer-agent')
+if not (DATA_DIR / 'tasks.jsonl').exists():  # locate the competition mount
+    hits = sorted(t.parent for t in Path('/kaggle/input').rglob('tasks.jsonl') if (t.parent / 'snapshots').is_dir())
+    assert hits, 'Competition data not attached (no tasks.jsonl + snapshots/ under /kaggle/input)'
+    DATA_DIR = hits[0]
+print('DATA_DIR', DATA_DIR)
 WORKING_DIR = Path('/kaggle/working')
 AGENT_DIR = WORKING_DIR / 'submission'
 shutil.rmtree(AGENT_DIR, ignore_errors=True)
@@ -150,7 +156,17 @@ declared = discover_declared_models(AGENT_DIR)
 assert len(declared) == 1, declared
 MODEL_NAME = next(iter(declared))
 MODEL_PATH = Path(f'/kaggle/input/models/google/gemma-4/other/{MODEL_NAME}/2')
-assert MODEL_PATH.exists(), f'Attach the model input: {MODEL_PATH}'
+if not (MODEL_PATH / 'config.json').exists():
+    # mount layout differs between notebook versions: find a dir named after the model holding config.json
+    hits = sorted({c.parent for c in Path('/kaggle/input').rglob('config.json')
+                   if MODEL_NAME in str(c.parent)})
+    print('model dir candidates:', hits)
+    if not hits:
+        print('config.json files under /kaggle/input:',
+              [str(c.parent) for c in Path('/kaggle/input').rglob('config.json')][:20])
+    assert hits, f'Model {MODEL_NAME} not found under /kaggle/input: attach the right variation'
+    MODEL_PATH = hits[0]
+print('MODEL_PATH', MODEL_PATH)
 
 adapters = discover_adapters(str(AGENT_DIR), adapter_extensions=ALLOWED_ADAPTER_EXTENSIONS)
 adapter_map = getattr(adapters, 'adapters', None) or {}
