@@ -1,0 +1,10 @@
+# Per-task budgets. The whole run (~120 tasks + sandbox setup + vLLM start)
+# must finish inside 12 h or the submission gets no score.
+# Anchored to the public LB-0.22 notebook (8 min / 28 calls), which is known to
+# finish: in practice the tool-call cap binds first (~9 s per model call), so
+# the average task ends well under the time cap.
+evaluation:
+  timeout_seconds: 180
+  max_tool_calls: 30
+  max_time_minutes: 7
+  max_turns: 70
