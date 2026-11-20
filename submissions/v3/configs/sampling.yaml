@@ -1,0 +1,10 @@
+temperature: 1.0
+top_p: 0.95
+# 8192: vLLM reserves max_output_tokens out of the 32768 context (16384 crashed
+# 3/12 v1 eval tasks with ContextWindowExceededError).
+max_output_tokens: 8192
+thinking_config:
+  # 2048 (was 4096): v2 eval was decode-bound (~27 generated tok/s of agent time,
+  # mostly thinking) and projected 12.3 h. Community ablation: 2048 ~= 4096 in score.
+  thinking_budget: 2048
+  include_thoughts: true
